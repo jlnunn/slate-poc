@@ -33,8 +33,31 @@ export default class ExampleEditor extends Component {
     value: initialValue,
   };
 
+  editorRef = React.createRef();
+
+  handleMouseDown = event => event.preventDefault();
+
+  insertImage = (editor, src, target) => {
+    if (target) {
+      editor.select(target)
+    }
+
+    const selectedRange = editor.value.selection;
+
+    editor.insertInlineAtRange(selectedRange, {
+        data: { src },
+        type: 'image',
+      })
+      .focus()
+  };
+
   onChange = ({ value }) => {
     this.setState({ value })
+  };
+
+  onImageInsert = url => {
+    if (!url) return;
+    this.editorRef.current.command(this.insertImage, url);
   };
 
   onKeyDown = (event, editor, next) => {
@@ -57,7 +80,7 @@ export default class ExampleEditor extends Component {
 
   onMarkClick = (event, type) => {
     event.preventDefault();
-    this.editor.toggleMark(type);
+    this.editorRef.toggleMark(type);
   };
 
   renderMark = props => {
@@ -67,6 +90,20 @@ export default class ExampleEditor extends Component {
       case 'italic':
         return <ItalicMark {...props} />
     }
+  };
+
+  renderNode = (props, editor, next) => {
+    const { attributes, node, isFocused } = props;
+
+    if (node.type === 'image') {
+      const src = node.data.get('src');
+
+      return (
+        <img src={src} selected={isFocused}  {...attributes} />
+      );
+    }
+
+    return next()
   };
 
   render() {
@@ -85,13 +122,20 @@ export default class ExampleEditor extends Component {
           >
             <Icon icon={italic} />
           </button>
+          <button
+            onPointerDown={(e) => this.onImageInsert('http://placekitten.com/150/150')}
+          >
+            Insert Image
+          </button>
         </FormatToolbar>
         <Editor
-          ref={editor => this.editor = editor}
+          ref={this.editorRef}
           value={this.state.value}
           onChange={this.onChange}
-                onKeyDown={this.onKeyDown}
-                renderMark={this.renderMark}
+          onKeyDown={this.onKeyDown}
+          renderNode={this.renderNode}
+          renderMark={this.renderMark}
+
         />
       </Fragment>
     );
