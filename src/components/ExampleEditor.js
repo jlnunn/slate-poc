@@ -80,7 +80,7 @@ export default class ExampleEditor extends Component {
 
   onMarkClick = (event, type) => {
     event.preventDefault();
-    this.editorRef.toggleMark(type);
+    this.editorRef.current.toggleMark(type);
   };
 
   renderMark = props => {
