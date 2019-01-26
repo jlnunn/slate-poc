@@ -5,6 +5,7 @@ import Icon from 'react-icons-kit';
 import { bold } from 'react-icons-kit/feather/bold';
 import { italic } from 'react-icons-kit/feather/italic';
 import { BoldMark, ItalicMark, FormatToolbar } from './index';
+import ImageNode from './ImageNode';
 
 const initialValue = Value.fromJSON({
   document: {
@@ -26,6 +27,14 @@ const initialValue = Value.fromJSON({
     ],
   },
 });
+
+const schema = {
+  inlines: {
+    image: {
+      isVoid: true,
+    },
+  },
+};
 
 export default class ExampleEditor extends Component {
 
@@ -93,13 +102,11 @@ export default class ExampleEditor extends Component {
   };
 
   renderNode = (props, editor, next) => {
-    const { attributes, node, isFocused } = props;
+    const { node } = props;
 
     if (node.type === 'image') {
-      const src = node.data.get('src');
-
       return (
-        <img src={src} selected={isFocused}  {...attributes} />
+        <ImageNode {...props} />
       );
     }
 
@@ -135,7 +142,7 @@ export default class ExampleEditor extends Component {
           onKeyDown={this.onKeyDown}
           renderNode={this.renderNode}
           renderMark={this.renderMark}
-
+          schema={schema}
         />
       </Fragment>
     );
